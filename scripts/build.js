@@ -48,6 +48,22 @@ const md = new MarkdownIt({
   }
 });
 
+const defaultLinkRenderer =
+  md.renderer.rules.link_open ||
+  function defaultLinkOpen(tokens, idx, options, _env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const href = tokens[idx].attrGet('href');
+  if (isExternalLink(href)) {
+    tokens[idx].attrSet('target', '_blank');
+    tokens[idx].attrSet('rel', 'noopener noreferrer');
+  }
+
+  return defaultLinkRenderer(tokens, idx, options, env, self);
+};
+
 async function main() {
   await cleanBuildDir();
 
@@ -626,6 +642,29 @@ function buildPostStructuredData(post) {
   };
 
   return `<script type="application/ld+json">${JSON.stringify(payload)}</script>`;
+}
+
+function isExternalLink(href) {
+  if (!href) {
+    return false;
+  }
+
+  const value = String(href).trim();
+  if (!value || value.startsWith('#') || value.startsWith('/')) {
+    return false;
+  }
+
+  if (/^(mailto:|tel:|javascript:)/i.test(value)) {
+    return false;
+  }
+
+  try {
+    const linkUrl = new URL(value, SITE.origin);
+    const siteOrigin = new URL(SITE.origin).origin;
+    return linkUrl.origin !== siteOrigin;
+  } catch {
+    return false;
+  }
 }
 
 function inferDefaultOrigin(repositoryOwner) {

@@ -51,6 +51,10 @@ Ambiente isolado por projeto evita acoplamento acidental de dependências globai
 
 Sempre mantenha dependências explicitadas em `requirements.txt` (ou equivalente).
 
+## 5. Referência
+
+Encontrei um bom site de referência na própria Microsoft. [Visite o artigo da Microsoft](https://code.visualstudio.com/docs/python/tutorial-django)
+
 ## Conclusão
 
 Esse setup aumenta confiabilidade de build, reduz erros de ambiente e melhora ritmo de evolução no backend.
