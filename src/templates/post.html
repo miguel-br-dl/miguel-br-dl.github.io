@@ -1,0 +1,42 @@
+<article class="post-layout">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{homeUrl}}">Home</a>
+    <span>/</span>
+    <a href="{{blogUrl}}">Blog</a>
+    <span>/</span>
+    <span>{{postTitle}}</span>
+  </nav>
+
+  <header class="post-header glass">
+    <p class="kicker">{{postCategory}}</p>
+    <h1>{{postTitle}}</h1>
+    <p class="post-meta">{{postDate}} · {{readingTime}}</p>
+    <p class="post-summary">{{postSummary}}</p>
+    <img src="{{postCoverImage}}" alt="Imagem de capa de {{postTitle}}" class="post-cover" loading="eager">
+
+    <div class="tag-list">
+      {{tagLinks}}
+    </div>
+  </header>
+
+  <section class="post-content glass">
+    {{postContent}}
+
+    <div class="mid-ad ads-slot">
+      <p>Anúncio</p>
+      <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="{{adsClient}}"
+        data-ad-slot="1234567890"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Artigos Relacionados</h2>
+    <div class="related-list">
+      {{relatedPosts}}
+    </div>
+  </section>
+</article>

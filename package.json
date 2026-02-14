@@ -1,0 +1,21 @@
+{
+  "name": "miguel-angelo-moutinho-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site estático híbrido (blog + portfólio) com geração de HTML a partir de Markdown.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "clean": "rm -rf build",
+    "rebuild": "bash scripts/rebuild.sh",
+    "rebuild:serve": "bash scripts/rebuild.sh --serve 8080"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "html-minifier-terser": "^7.2.0",
+    "markdown-it": "^14.1.0"
+  }
+}

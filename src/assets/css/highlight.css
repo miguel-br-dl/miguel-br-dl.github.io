@@ -1,0 +1,30 @@
+.hljs {
+  color: #d8e1ff;
+  background: linear-gradient(165deg, #1f2944, #1a2238);
+  border: 1px solid rgba(145, 167, 218, 0.2);
+  padding: 0.85rem;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-title,
+.hljs-section {
+  color: #7fb0ff;
+}
+
+.hljs-string,
+.hljs-literal,
+.hljs-number {
+  color: #c7f1b6;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #90a4cd;
+}
+
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable {
+  color: #f7c8ff;
+}

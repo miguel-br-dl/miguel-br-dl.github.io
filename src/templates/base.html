@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{metaTitle}}</title>
+  <meta name="description" content="{{metaDescription}}">
+  <meta name="author" content="Miguel Angelo Moutinho">
+  <meta name="google-adsense-account" content="{{adsClient}}">
+  <meta property="og:type" content="{{ogType}}">
+  <meta property="og:title" content="{{ogTitle}}">
+  <meta property="og:description" content="{{ogDescription}}">
+  <meta property="og:image" content="{{ogImage}}">
+  <meta property="og:url" content="{{canonicalUrl}}">
+  <meta property="og:site_name" content="Miguel Angelo Moutinho">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ogTitle}}">
+  <meta name="twitter:description" content="{{ogDescription}}">
+  <meta name="twitter:image" content="{{ogImage}}">
+  <link rel="canonical" href="{{canonicalUrl}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{stylesUrl}}">
+  <link rel="stylesheet" href="{{highlightStylesUrl}}">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{adsClient}}" crossorigin="anonymous"></script>
+  {{headExtra}}
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="site-header glass">
+    <a class="brand" href="{{homeUrl}}">
+      <span class="brand-title">Miguel Angelo Moutinho</span>
+      <span class="brand-subtitle">Blog + Portfólio Técnico</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Principal">
+      <a href="{{homeUrl}}">Home</a>
+      <a href="{{blogUrl}}">Blog</a>
+      <a href="{{projectsUrl}}">Projetos</a>
+      <a href="{{aboutUrl}}">Sobre</a>
+    </nav>
+  </header>
+
+  <main>
+    {{content}}
+  </main>
+
+  <footer class="site-footer glass">
+    <p>Conteúdo técnico por Miguel Angelo Moutinho.</p>
+    <p>Java, Python e Inteligência Artificial com foco em prática.</p>
+  </footer>
+
+  <script>
+    window.__SITE_BASE_PATH__ = '{{basePath}}';
+  </script>
+  <script src="{{mainJsUrl}}" defer></script>
+  {{pageScripts}}
+</body>
+</html>
