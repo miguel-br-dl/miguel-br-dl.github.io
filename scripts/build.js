@@ -13,6 +13,7 @@ const POSTS_DIR = path.join(SRC_DIR, 'posts');
 const TEMPLATES_DIR = path.join(SRC_DIR, 'templates');
 const ASSETS_DIR = path.join(SRC_DIR, 'assets');
 const BUILD_DIR = path.join(ROOT, 'build');
+const BUILD_VERSION = resolveBuildVersion(process.env.BUILD_VERSION);
 const REPOSITORY = process.env.GITHUB_REPOSITORY || '';
 const REPOSITORY_OWNER = process.env.GITHUB_REPOSITORY_OWNER || '';
 
@@ -22,7 +23,8 @@ const SITE = {
     'Blog e portfólio técnico sobre Java, Python e Inteligência Artificial para desenvolvedores.',
   origin: normalizeOrigin(process.env.SITE_URL || inferDefaultOrigin(REPOSITORY_OWNER)),
   basePath: normalizeBasePath(process.env.BASE_PATH || inferBasePathFromRepository(REPOSITORY)),
-  adsClient: 'ca-pub-2236242824534513'
+  adsClient: 'ca-pub-2236242824534513',
+  buildVersion: BUILD_VERSION
 };
 
 const REQUIRED_FRONTMATTER_FIELDS = [
@@ -157,6 +159,7 @@ async function loadPosts() {
       coverImage: toPublicUrl(parsed.data.coverImage),
       coverImageAbsolute: toAbsoluteUrl(parsed.data.coverImage),
       url: toPublicUrl(`/posts/${slug}.html`),
+      browsingUrl: withCacheBust(toPublicUrl(`/posts/${slug}.html`)),
       absoluteUrl: toAbsoluteUrl(`/posts/${slug}.html`),
       htmlContent,
       plainText: stripHtml(htmlContent)
@@ -207,7 +210,7 @@ function buildTagsMap(posts) {
         summary: post.summary,
         category: post.category,
         date: post.formattedDate,
-        url: post.url,
+        url: post.browsingUrl,
         coverImage: post.coverImage
       });
     }
@@ -229,7 +232,7 @@ function buildSearchIndex(posts) {
     summary: post.summary,
     tags: post.tags,
     category: post.category,
-    url: post.url,
+    url: post.browsingUrl,
     date: post.formattedDate,
     coverImage: post.coverImage,
     tagSlugs: post.tagSlugs
@@ -241,8 +244,8 @@ async function buildHomePage(templates, posts) {
 
   const content = renderTemplate(templates.index, {
     latestPosts,
-    blogUrl: toPublicUrl('/blog.html'),
-    projectsUrl: toPublicUrl('/projects.html'),
+    blogUrl: withCacheBust(toPublicUrl('/blog.html')),
+    projectsUrl: withCacheBust(toPublicUrl('/projects.html')),
     adsClient: SITE.adsClient
   });
 
@@ -287,7 +290,9 @@ async function buildBlogPage(templates, posts, categories, tagsMap) {
     ogDescription: 'Busca local por título, resumo, tags e categoria.',
     ogImage: toAbsoluteUrl('/assets/images/front-end-news.png'),
     ogType: 'website',
-    pageScripts: `\n  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>\n  <script src="${toPublicUrl('/assets/js/search.js')}" defer></script>`
+    pageScripts: `\n  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>\n  <script src="${withCacheBust(
+      toPublicUrl('/assets/js/search.js')
+    )}" defer></script>`
   });
 
   await writeHtml(path.join(BUILD_DIR, 'blog.html'), html);
@@ -308,7 +313,7 @@ async function buildProjectsPage(templates) {
       stack: 'Node.js · Markdown · CI/CD',
       description:
         'Automação de build para transformar Markdown em páginas HTML com SEO e distribuição contínua.',
-      url: toPublicUrl('/blog.html'),
+      url: withCacheBust(toPublicUrl('/blog.html')),
       github: 'https://github.com/miguel-br-dl'
     },
     {
@@ -316,7 +321,7 @@ async function buildProjectsPage(templates) {
       stack: 'Python · APIs · Automação',
       description:
         'Experimentos de produtividade para engenharia de software com integração de IA em fluxos reais.',
-      url: toPublicUrl('/about.html'),
+      url: withCacheBust(toPublicUrl('/about.html')),
       github: 'https://github.com/miguel-br-dl'
     }
   ]
@@ -375,7 +380,9 @@ async function buildPostPages(templates, posts, pages) {
     const tagLinks = post.tags
       .map(
         (tag) =>
-          `<a class="tag-link" href="${toPublicUrl(`/tags/${post.tagSlugs[tag]}.html`)}">#${escapeHtml(
+          `<a class="tag-link" href="${withCacheBust(
+            toPublicUrl(`/tags/${post.tagSlugs[tag]}.html`)
+          )}">#${escapeHtml(
             tag
           )}</a>`
       )
@@ -384,8 +391,8 @@ async function buildPostPages(templates, posts, pages) {
     const structuredData = buildPostStructuredData(post);
 
     const content = renderTemplate(templates.post, {
-      homeUrl: toPublicUrl('/index.html'),
-      blogUrl: toPublicUrl('/blog.html'),
+      homeUrl: withCacheBust(toPublicUrl('/index.html')),
+      blogUrl: withCacheBust(toPublicUrl('/blog.html')),
       postTitle: escapeHtml(post.title),
       postCategory: escapeHtml(post.category),
       postDate: escapeHtml(post.formattedDate),
@@ -409,7 +416,7 @@ async function buildPostPages(templates, posts, pages) {
       ogDescription: post.summary,
       ogImage: post.coverImageAbsolute,
       ogType: 'article',
-      headExtra: `\n  <meta property="article:published_time" content="${post.isoDate}">\n  <meta property="article:section" content="${escapeHtml(post.category)}">\n  ${structuredData}`
+      headExtra: `\n  ${buildNoCacheMetaTags()}\n  <meta property="article:published_time" content="${post.isoDate}">\n  <meta property="article:section" content="${escapeHtml(post.category)}">\n  ${structuredData}`
     });
 
     const outputPath = path.join(BUILD_DIR, 'posts', `${post.slug}.html`);
@@ -468,7 +475,9 @@ function renderArticleCard(post) {
   const tags = post.tags
     .map(
       (tag) =>
-        `<a class="tag-link" href="${toPublicUrl(`/tags/${post.tagSlugs[tag]}.html`)}">#${escapeHtml(
+        `<a class="tag-link" href="${withCacheBust(
+          toPublicUrl(`/tags/${post.tagSlugs[tag]}.html`)
+        )}">#${escapeHtml(
           tag
         )}</a>`
     )
@@ -481,7 +490,9 @@ function renderArticleCard(post) {
       )}" loading="lazy">
       <div class="card-body">
         <p class="card-meta">${escapeHtml(post.category)} · ${escapeHtml(post.formattedDate)}</p>
-        <h2 class="card-title"><a href="${escapeHtml(post.url)}">${escapeHtml(post.title)}</a></h2>
+        <h2 class="card-title"><a href="${escapeHtml(post.browsingUrl)}">${escapeHtml(
+    post.title
+  )}</a></h2>
         <p class="card-summary">${escapeHtml(post.summary)}</p>
         <div class="tags-row">${tags}</div>
       </div>
@@ -493,7 +504,7 @@ function renderRelatedCard(post) {
   return `
     <article class="related-card">
       <p class="card-meta">${escapeHtml(post.category)}</p>
-      <h3><a href="${escapeHtml(post.url)}">${escapeHtml(post.title)}</a></h3>
+      <h3><a href="${escapeHtml(post.browsingUrl)}">${escapeHtml(post.title)}</a></h3>
       <p>${escapeHtml(post.summary)}</p>
     </article>
   `;
@@ -539,16 +550,17 @@ function renderLayout(baseTemplate, params) {
     ogType: 'website',
     content: '',
     adsClient: SITE.adsClient,
-    stylesUrl: toPublicUrl('/assets/css/styles.css'),
-    highlightStylesUrl: toPublicUrl('/assets/css/highlight.css'),
-    mainJsUrl: toPublicUrl('/assets/js/main.js'),
+    stylesUrl: withCacheBust(toPublicUrl('/assets/css/styles.css')),
+    highlightStylesUrl: withCacheBust(toPublicUrl('/assets/css/highlight.css')),
+    mainJsUrl: withCacheBust(toPublicUrl('/assets/js/main.js')),
     pageScripts: '',
     headExtra: '',
-    homeUrl: toPublicUrl('/index.html'),
-    blogUrl: toPublicUrl('/blog.html'),
-    projectsUrl: toPublicUrl('/projects.html'),
-    aboutUrl: toPublicUrl('/about.html'),
-    basePath: SITE.basePath
+    homeUrl: withCacheBust(toPublicUrl('/index.html')),
+    blogUrl: withCacheBust(toPublicUrl('/blog.html')),
+    projectsUrl: withCacheBust(toPublicUrl('/projects.html')),
+    aboutUrl: withCacheBust(toPublicUrl('/about.html')),
+    basePath: SITE.basePath,
+    buildVersion: SITE.buildVersion
   };
 
   return renderTemplate(baseTemplate, { ...defaultParams, ...params });
@@ -642,6 +654,37 @@ function buildPostStructuredData(post) {
   };
 
   return `<script type="application/ld+json">${JSON.stringify(payload)}</script>`;
+}
+
+function buildNoCacheMetaTags() {
+  return [
+    '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">',
+    '<meta http-equiv="Pragma" content="no-cache">',
+    '<meta http-equiv="Expires" content="0">'
+  ].join('\n  ');
+}
+
+function resolveBuildVersion(version) {
+  const raw = String(version || '').trim() || `${Date.now()}`;
+  return raw.replace(/[^a-zA-Z0-9._-]/g, '');
+}
+
+function withCacheBust(url) {
+  if (!SITE.buildVersion || !url) {
+    return url;
+  }
+
+  const value = String(url);
+  if (
+    value.startsWith('#') ||
+    /^(mailto:|tel:|javascript:)/i.test(value) ||
+    /^https?:\/\//i.test(value)
+  ) {
+    return value;
+  }
+
+  const separator = value.includes('?') ? '&' : '?';
+  return `${value}${separator}v=${encodeURIComponent(SITE.buildVersion)}`;
 }
 
 function isExternalLink(href) {

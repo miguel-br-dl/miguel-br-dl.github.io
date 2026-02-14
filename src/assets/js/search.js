@@ -16,10 +16,18 @@
   const resultsEl = document.getElementById('blog-results');
   const emptyMessage = resultsEl?.dataset?.emptyMessage || 'Nenhum resultado.';
   const basePath = window.__SITE_BASE_PATH__ || '';
+  const buildVersion = window.__BUILD_VERSION__ || '';
 
   const safePath = (path) => {
     if (!basePath) return path;
     return `${basePath}${path}`;
+  };
+
+  const withVersion = (path) => {
+    const url = safePath(path);
+    if (!buildVersion) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}v=${encodeURIComponent(buildVersion)}`;
   };
 
   const esc = (value) =>
@@ -34,7 +42,7 @@
     const tags = (post.tags || [])
       .map((tag) => {
         const slug = (post.tagSlugs || {})[tag] || '';
-        return `<a class="tag-link" href="${safePath(`/tags/${slug}.html`)}">#${esc(tag)}</a>`;
+        return `<a class="tag-link" href="${withVersion(`/tags/${slug}.html`)}">#${esc(tag)}</a>`;
       })
       .join('');
 
@@ -54,7 +62,7 @@
   };
 
   const fetchJson = async (path) => {
-    const response = await fetch(safePath(path));
+    const response = await fetch(withVersion(path));
     if (!response.ok) {
       throw new Error(`Erro ao buscar ${path}`);
     }
