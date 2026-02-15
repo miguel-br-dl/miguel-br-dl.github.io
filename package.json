@@ -2,7 +2,7 @@
   "name": "miguel-angelo-moutinho-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Site estático híbrido (blog + portfólio) com geração de HTML a partir de Markdown.",
+  "description": "Site estático híbrido (meu blog) com geração de HTML a partir de Markdown.",
   "scripts": {
     "build": "node scripts/build.js",
     "clean": "rm -rf build",
